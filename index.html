@@ -1,10 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Chatbot</title>
-    <style>
+document.addEventListener('DOMContentLoaded', () => {
+    // Create styles
+    const style = document.createElement('style');
+    style.textContent = `
         body, html {
             margin: 0;
             padding: 0;
@@ -13,138 +10,178 @@
             background-color: #f4f7f6;
         }
 
-        .chatbot-container {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            width: 100%;
-            height: 100%;
-            border-radius: 8px;
+        .chatbot-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            overflow: hidden;
-            background-color: #fff;
+            cursor: pointer;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chatbot-iframe {
+            display: none;
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 300px;
+            height: 400px;
+            border: none;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+        }
+
+        .chatbot-container {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 300px;
+            height: 400px;
+            border: none;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            background-color: white;
+            display: none;
+            flex-direction: column;
         }
 
         .chatbot-header {
+            padding: 10px;
             background-color: #007bff;
             color: white;
-            padding: 10px 20px;
             text-align: center;
-            font-weight: bold;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
         }
 
         .chatbox {
             flex: 1;
-            padding: 15px;
+            padding: 10px;
             overflow-y: auto;
-            background-color: #f4f4f4;
-        }
-
-        .chat-message {
-            margin: 10px 0;
-            padding: 10px 15px;
-            border-radius: 20px;
-            max-width: 70%;
-            word-wrap: break-word;
-        }
-
-        .chat-message.user {
-            background-color: #007bff;
-            color: white;
-            margin-left: auto;
-            text-align: right;
-        }
-
-        .chat-message.ai {
-            background-color: #e9ecef;
-            color: #333;
-            margin-right: auto;
         }
 
         .input-container {
             display: flex;
-            border-top: 1px solid #ccc;
-            background-color: #fff;
+            justify-content: space-between;
             padding: 10px;
+            background-color: #fff;
+            border-top: 1px solid #ddd;
         }
 
-        input[type="text"] {
+        .input-container input {
             flex: 1;
             padding: 10px;
-            border: none;
-            border-radius: 20px;
-            outline: none;
-            font-size: 16px;
-            background-color: #f4f7f6;
+            border: 1px solid #ddd;
+            border-radius: 4px;
             margin-right: 10px;
         }
 
-        button {
+        .input-container button {
             padding: 10px 20px;
-            border: none;
-            border-radius: 20px;
             background-color: #007bff;
-            color: white;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
             cursor: pointer;
-            font-size: 16px;
         }
 
-        button:hover {
+        .input-container button:hover {
             background-color: #0056b3;
         }
-    </style>
-</head>
-<body>
 
-    <div class="chatbot-container">
-        <div class="chatbot-header">
-            AI Chatbot
-        </div>
-        <div class="chatbox" id="chatbox">
-            <!-- Chat messages will appear here -->
-        </div>
-        <div class="input-container">
-            <input type="text" id="userInput" placeholder="Type a message..." onkeypress="handleKeyPress(event)" />
-            <button onclick="sendMessage()">Send</button>
-        </div>
-    </div>
-
-    <script>
-        function sendMessage() {
-            const userInput = document.getElementById('userInput').value;
-            if (userInput.trim() === '') return;
-
-            // Display user message
-            const chatbox = document.getElementById('chatbox');
-            const userMessage = document.createElement('div');
-            userMessage.className = 'chat-message user';
-            userMessage.textContent = userInput;
-            chatbox.appendChild(userMessage);
-
-            // Clear input
-            document.getElementById('userInput').value = '';
-
-            // Scroll to the bottom of the chatbox
-            chatbox.scrollTop = chatbox.scrollHeight;
-
-            // Simulate AI response
-            setTimeout(() => {
-                const aiMessage = document.createElement('div');
-                aiMessage.className = 'chat-message ai';
-                aiMessage.textContent = 'AI response to: ' + userInput;
-                chatbox.appendChild(aiMessage);
-
-                // Scroll to the bottom of the chatbox
-                chatbox.scrollTop = chatbox.scrollHeight;
-            }, 1000);
+        .chat-message {
+            padding: 10px;
+            margin: 10px;
+            border-radius: 4px;
         }
 
-        function handleKeyPress(event) {
-            if (event.key === 'Enter') {
-                sendMessage();
-            }
+        .chat-message.user {
+            background-color: #007bff;
+            color: #fff;
+            align-self: flex-end;
         }
-    </script>
+    `;
+    document.head.appendChild(style);
 
-</body>
-</html>
+    // Create chatbot button
+    const chatbotButton = document.createElement('button');
+    chatbotButton.className = 'chatbot-button';
+    chatbotButton.innerHTML = '💬';
+    chatbotButton.onclick = toggleChatbot;
+    document.body.appendChild(chatbotButton);
+
+    // Create chatbot container
+    const chatbotContainer = document.createElement('div');
+    chatbotContainer.className = 'chatbot-container';
+    document.body.appendChild(chatbotContainer);
+
+    // Create chatbot header
+    const chatbotHeader = document.createElement('div');
+    chatbotHeader.className = 'chatbot-header';
+    chatbotHeader.textContent = 'AI Chatbot';
+    chatbotContainer.appendChild(chatbotHeader);
+
+    // Create chatbox
+    const chatbox = document.createElement('div');
+    chatbox.className = 'chatbox';
+    chatbox.id = 'chatbox';
+    chatbotContainer.appendChild(chatbox);
+
+    // Create input container
+    const inputContainer = document.createElement('div');
+    inputContainer.className = 'input-container';
+    chatbotContainer.appendChild(inputContainer);
+
+    // Create input field
+    const userInput = document.createElement('input');
+    userInput.type = 'text';
+    userInput.id = 'userInput';
+    userInput.placeholder = 'Type a message...!';
+    userInput.onkeypress = handleKeyPress;
+    inputContainer.appendChild(userInput);
+
+    // Create send button
+    const sendButton = document.createElement('button');
+    sendButton.textContent = 'Send';
+    sendButton.onclick = sendMessage;
+    inputContainer.appendChild(sendButton);
+
+    // Toggle chatbot visibility
+    function toggleChatbot() {
+        chatbotContainer.style.display = chatbotContainer.style.display === 'none' ? 'flex' : 'none';
+    }
+
+    // Send message function
+    window.sendMessage = function() {
+        const userInput = document.getElementById('userInput').value;
+        if (userInput.trim() === '') return;
+
+        // Display user message
+        const userMessage = document.createElement('div');
+        userMessage.className = 'chat-message user';
+        userMessage.textContent = userInput;
+        chatbox.appendChild(userMessage);
+
+        // Clear input
+        document.getElementById('userInput').value = '';
+
+        // Scroll to the bottom of the chatbox
+        chatbox.scrollTop = chatbox.scrollHeight;
+    };
+
+    // Handle key press event
+    window.handleKeyPress = function(event) {
+        if (event.key === 'Enter') {
+            sendMessage();
+        }
+    };
+});
